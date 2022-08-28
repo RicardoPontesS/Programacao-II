@@ -1,0 +1,163 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <time.h>
+#include <math.h>
+
+float cx,cy;
+
+void mostrarVetores(int *vx,int *vy,int k){
+	int c;
+	printf("--------------------------------------------------------\n");
+	for(c=0;c<k;c++){
+		printf("[%d,%d]",vx[c],vy[c]);
+	}
+}
+
+void mostrarVetores2(float *vetAng,int k){
+	int c;
+	printf("-----------------Angulos Ordenados----------------------\n");
+	for(c=0;c<k;c++){
+		printf("[%.2f]",vetAng[c]);
+	}
+}
+
+void calculaCentro (int *vx,int *vy,int k){
+	int cont;
+	
+	for(cont=0;cont<k;cont++){
+		cx+=vx[cont];
+		cy+= vy[cont];
+	}		
+	
+	cx=(cx/k);
+	cy=(cy/k);
+	printf("--------------------------------------------------------\n");
+	printf("O valor do centroide e de aproximadamente: [%.2f,%.2f] ",cx,cy);
+}
+
+void transladar(int *vx,int *vy,int k){
+	
+	int cont;
+	
+	for(cont=0;cont<k;cont++){
+		vx[cont]-=cx;
+		vy[cont]-=cy;
+	}
+}
+	
+void calculaAngulo(int *vx,int *vy,int k,float * vetAng){
+	
+	/*
+	Formula usada:
+	cos = (u*v)/(|u|*|v|)
+	*/
+	
+	int i,prodEscalar;
+	int xPadrao,yPadrao;
+	float modulo1,modulo2,prodMod,cos,result,PI=3.1415926;
+	printf("--------------------------------------------------------\n");
+	printf("O valor dos angulos em graus e' de aproximadamente: \n");
+	
+	for(i=0;i<k;i++){
+		xPadrao=vx[i];
+		yPadrao=0;
+		
+		prodEscalar = (vx[i]*xPadrao)+(vy[i]*yPadrao);
+		modulo1 = sqrt((vx[i]*vx[i])+(vy[i]*vy[i]));	
+		modulo2 = sqrt(xPadrao*xPadrao);
+		prodMod = modulo1*modulo2;
+		cos = prodEscalar / prodMod;
+		result= acos(cos)*180/PI;
+		if(vx[i]>0 && vy[i]>0){
+			printf("[%.2f]",result);
+		}
+		else if(vy[i]>0 && vx[i]<0){
+			result = 180 - result;	
+			printf("[%.2f]",result);
+		}
+		else if(vx[i]<0 && vy[i]<0){
+			result = 270 - result;
+			printf("[%.2f]",result);
+		}
+		else if(vy[i]<0 && vx[i]>0){
+			result = 360 - result;
+			printf("[%.2f]",result);
+		}
+		
+		vetAng[i] = result;
+	}	
+}
+
+void ordena(float *vetAng, int esquerda, int direita) {
+    int i, j, x, y;
+     
+    i = esquerda;	
+    j = direita;	
+    x = vetAng[(esquerda + direita) / 2];	
+	
+    while(i <= j) { 
+        while(vetAng[i] < x && i < direita) { 
+            i++;
+        }						
+		
+					
+        while(vetAng[j] > x && j > esquerda) { 
+											
+            j--;						
+        }
+        if(i <= j) { 
+            y = vetAng[i]; 
+            vetAng[i] = vetAng[j]; 
+            vetAng[j] = y; 
+            i++; 
+            j--;
+        }
+    }
+     
+   
+    if(j > esquerda) { 
+        ordena(vetAng, esquerda, j);  
+    }
+    if(i < direita) { 
+        ordena(vetAng, i, direita);
+    }
+}
+
+int main() {
+	
+	srand(time(NULL));
+	int n,c;
+	
+	printf("Digite quantos pontos deseja criar: ");
+	scanf("%d",&n);
+	
+	int *vx;
+	int *vy;
+	float vetAng[n];
+	float aux = (float)n;
+	
+	vx = (int *)malloc(sizeof(int)*n);
+	vy = (int *)malloc(sizeof(int)*n); 
+	
+	for(c=0;c<n;c++){
+		vx[c]=(rand()%50);
+		vy[c]=(rand()%50);
+	}
+	
+	mostrarVetores(vx,vy,n);
+	printf("\n");
+	calculaCentro(vx,vy,n);
+	printf("\n");
+	transladar(vx,vy,n);
+	printf("\n");
+	mostrarVetores(vx,vy,n);
+	printf("\n");	
+	calculaAngulo(vx,vy,n,vetAng);
+	printf("\n");
+	ordena(vetAng,0,n-1);
+	printf("\n");
+	mostrarVetores2(vetAng,n);
+	printf("\n");
+	
+	return 0;
+}
